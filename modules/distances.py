@@ -9,6 +9,7 @@
 import numpy as np
 import math
 from math import sqrt
+import networkx as nx
 
 # -------- L1 Norm (sum norm) ---------
 
@@ -72,3 +73,31 @@ def l2dist(x_coord,y_coord):
     return distl2_matrix
 
 
+# -------- Graph Distance Function ---------
+
+def distgraph(G):
+    '''
+    This function recives a graph with the edges already weighed and returns a value (float) of the sum of the weight of all knots to the average of the weights (phi) as the average itself (dmG).
+    
+    Inputs:
+    G = graph already weighed
+    
+    Output:
+    
+    phi = float
+    dmG = float
+    '''
+    
+    dm1 = []
+    for (u, v, wt) in G.edges.data('weight'): 
+        dm1.append(wt)
+    s = 0
+    for i in dm1:
+        s+=i
+    dmG = s/(len(dm1)) 
+    
+    phi = 0
+    for i in range(len(dm1)):
+        phi += dm1[i] - dmG
+    
+    return phi,dmG
