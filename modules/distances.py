@@ -87,17 +87,17 @@ def distgraph(G):
     phi = float
     dmG = float
     '''
-    
+    # get the weights of the undirected Graph:
     dm1 = []
     for (u, v, wt) in G.edges.data('weight'): 
         dm1.append(wt)
-    s = 0
-    for i in dm1:
-        s+=i
-    dmG = s/(len(dm1)) 
-    
-    phi = 0
-    for i in range(len(dm1)):
-        phi += dm1[i] - dmG
+   
+    # computing the mean of the MST:
+    dmG = np.mean( np.array(dm1) )
+
+    # compute the variance of the distances of the MST:
+    phi = 0.0
+    for i in range( len(dm1) ):
+        phi += (dm1[i] - dmG)**2
     
     return phi,dmG
