@@ -68,7 +68,7 @@ def l2dist(x_coord,y_coord):
                                     
     for i in range(tamx):
         for j in range(tamx):
-            distl2_matrix[i][j] = sqrt( (x_coord[i] - x_coord[j])**2 + (y_coord[i] - y_coord[j])**2 )                                     
+            distl2_matrix[i][j] = ( (x_coord[i] - x_coord[j])**2 + (y_coord[i] - y_coord[j])**2 )**(1/2)                                     
             
     return distl2_matrix
 
