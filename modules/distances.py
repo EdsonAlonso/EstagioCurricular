@@ -148,21 +148,29 @@ def distgraphmaha(x,y):
     S = nx.Graph()
     for i in range(len(x)):
         S.add_node(i ,pos=(x[i],y[i]))
-    for j in range(len(x)):
-        S.add_edge(i,j,weight=l2dist(x,y)[i][j])
+        for j in range(len(x)):
+            S.add_edge(i,j,weight=l2dist(x,y)[i][j])
     TS = nx.minimum_spanning_tree(S)
     
     # get the weights of the undirected Graph:
     dm1 = []
     u   = []
     v   = []
-    for (i, j, wt) in TS.edges.data('weight'): 
+    for (i, j, wt) in TS.edges.data('weight'):
+        print (i,j,wt)
         u.append(x[i])
         v.append(y[j])
+        dm1.append(wt)
+   
+    # computing the mean of the MST:
+    dmG = np.mean( np.array(dm1) )
+    
     N = np.array( (u,v) )
     C = np.cov( N.T )
     invC = np.linalg.inv(C)
     m = mahalanobis(u,v,invC)
    
+    if m==np.nan:
+        m=1e20
     
-    return m
+    return m,dmG
