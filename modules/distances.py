@@ -74,23 +74,32 @@ def l2dist(x_coord,y_coord):
     return distl2_matrix
 
 
+#-----------Importing the getgraph function----------
+
+from modules.graphs import getgraph
+
+
 # -------- Graph L2 Distance Function ---------
 
-def distgraph(G):
+def distgraph(M):
     '''
-    This function recives a graph with the edges already weighed and returns a value (float) of the square of the sum of the weight of all knots to the average of the weights (phi) as the average itself (dmG).
+    This function recives a matrix, in with the colum i means the coordinates of a point in the i axis, creates a graph as well as its MST and returns a value (float) of the square of the sum of the weight of all knots to the average of the weights (phi) as the average itself (dmG).
     
     Inputs:
-    G = graph already weighed
+    M - array like (m,n)
     
     Output:
     
     phi = float
     dmG = float
     '''
+    
+    #creates a graph and its MST:
+    G,TSG = getgraph(M)
+    
     # get the weights of the undirected Graph:
     dm1 = []
-    for (u, v, wt) in G.edges.data('weight'): 
+    for (u, v, wt) in TSG.edges.data('weight'): 
         dm1.append(wt)
    
     # computing the mean of the MST:
@@ -105,21 +114,25 @@ def distgraph(G):
 
 # -------- Graph L1 Distance Function ---------
 
-def distgraphl1(G):
+def distgraphl1(M):
     '''
-    This function recives a graph with the edges already weighed and returns a value (float) of the sum of the weight of all knots to the average of the weights (phi) as the average itself (dmG).
-    
+       This function recives a matrix, in with the colum i means the coordinates of a point in the i axis, creates a graph as well as its MST and returns a value (float) of the sum of the weight of all knots to the average of the weights (phi) as the average itself (dmG).
+
     Inputs:
-    G = graph already weighed
+    
+    M - array like (m,n)
     
     Output:
     
     phi = float
     dmG = float
     '''
+    #creates a graph and its MST:
+    G,TSG = getgraph(M)
+    
     # get the weights of the undirected Graph:
     dm1 = []
-    for (u, v, wt) in G.edges.data('weight'): 
+    for (u, v, wt) in TSG.edges.data('weight'): 
         dm1.append(wt)
    
     # computing the mean of the MST:
@@ -134,30 +147,33 @@ def distgraphl1(G):
 
 # -------- Graph Mahalanobis Distance Function ---------
 
-def distgraphmaha(x,y):
+def distgraphmaha(M):
     '''
-    This function recives two vectors, meaning the x coordinates and the y coordinates, computes a graph weighted with the distances betwen the knots(x,y), calculates the minimum spaning tree and returns the mahalanobis distances of the vertices in the MST.
+    This function recives a matrix, in with the colum i means the coordinates of a point in the i axis, creates a graph as well as its MST and returns the mahalanobis distances of the vertices in the MST as well as the as the average itself (dmG).
+.
+
     Inputs:
-    x - array like (n,1)
-    y - arrat like (n,1)
-    Output:
     
+    M - array like (m,n)
+   
     m - float - mahalanobis distance
+    dmG - float
     '''
-    #creates the graph and the MST:
-    S = nx.Graph()
-    for i in range(len(x)):
-        S.add_node(i ,pos=(x[i],y[i]))
-        for j in range(len(x)):
-            S.add_edge(i,j,weight=l2dist(x,y)[i][j])
-    TS = nx.minimum_spanning_tree(S)
+    #Separates the entries of the M matrix:
+    x = M[0]
+    x = np.array(x)
+    
+    y = M[0]
+    y = np.array(y)
+    
+    #creates a graph and its MST:
+    G,TSG = getgraph(M)
     
     # get the weights of the undirected Graph:
     dm1 = []
     u   = []
     v   = []
-    for (i, j, wt) in TS.edges.data('weight'):
-        print (i,j,wt)
+    for (i, j, wt) in TSG.edges.data('weight'):
         u.append(x[i])
         v.append(y[j])
         dm1.append(wt)
