@@ -109,7 +109,7 @@ def distgraph(M):
     phi = 0.0
     for i in range( len(dm1) ):
         phi += (dm1[i] - dmG)**2
-    
+
     return phi,dmG
 
 # -------- Graph L1 Distance Function ---------
@@ -142,7 +142,7 @@ def distgraphl1(M):
     phi = 0.0
     for i in range( len(dm1) ):
         phi += abs(dm1[i] - dmG)
-    
+   
     return phi,dmG
 
 # -------- Graph Mahalanobis Distance Function ---------
@@ -183,10 +183,10 @@ def distgraphmaha(M):
     
     N = np.array( (u,v) )
     C = np.cov( N.T )
+    if np.linalg.det(C) == 0:
+        np.fill_diagonal(C,1e10,wrap = True)
+        
     invC = np.linalg.inv(C)
     m = mahalanobis(u,v,invC)
-   
-    if m==np.nan:
-        m=1e20
     
     return m,dmG
