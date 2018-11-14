@@ -85,16 +85,82 @@ def volfont(raio,rho):
 
 ########################################################################################################################
 
+def g_rod(x,z,rod,component='z'):
+    '''
+    This function calculates the vertical component of gravity attraction produced by a thin rod with particular inclination and cross section
+    (Telford, 1981)
+    Inputs: x,z = arrays with cartesian coordinates in meters;
+    rod: list with the following elements in this specific order: rod[x_rod, z_rod, L, alpha, rho, A ]:
+    x_rod      = horizontal distance from origin (meters)
+    z_rod      = vertical distance from origin (meters)
+    L         = length of the thin rod (meters) (never zero!)
+    alpha     = inclination of the rod (degrees)
+    rho       = density of the rod (kg/m3)
+    A         = cross section of the rod in (m2)
+    component = the gravitational component to be computed (only z component is available yet) 
+    
+    Output:
+    g - numpy array - the required component for the gravity in mGal. Size of gz is the same as x and z observations    
+    '''
 
+    # Stablishing some conditions
+    if x.shape != z.shape:
+        raise ValueError("All inputs must have same shape!")
+        
+    if component !='z':
+        raise ValueError("Only z component is available yet!")
+    
+    # Definition for some constants
+    G = 6.673e-11 # SI
+    si2mGal = 100000.0 # convert to mGal
+    degree2rad = 180.0/np.pi # convert from degrees to radians
 
+    # get variables from list rod:
+    x_rod = rod[0]
+    z_rod = rod[1]
+    L     = rod[2]
+    alpha = rod[3]*degree2rad # set alpha to radians in here
+    rho   = rod[4]
+    A     = rod[5]
+    
+    # Setting position-vector: 
+    dx = x - x_rod
+    dz = z - z_rod
+    dummy = 1e-8 # pay attention to this number!
+    
+    # Verify the division by zero during calculations (for position-vector):
+    if dx.any() == 0.0:
+        dx+= dummy
+    if dz.any() == 0.0:
+        dz+=dummy
 
+    # Verify the division by zero during calculations (for alpha):
 
+    if alpha in [0.0, np.pi]:
+        aplha+=1e-3 # pay attention to this value
+        print('WARNING: CRITICAL INCLINATION. MAY NOT TRUST IN OUTCOMES!')
+    
+    # set the size of output array:
+    g = np.zeros( np.size(x) )
+    
+    # calculation of gravitation by parts:
+    # first part of equation:
+    term0 = G*rho*A / ( dx*np.sin(alpha) )
+    
+    term11 = ( dx + dz* (np.cos(alpha)/np.sin(alpha)) ) 
+    term12 = ( dz**2 * (1.0/np.sin(alpha))**2 + 2.0*dx*dz *(np.cos(alpha)/np.sin(alpha)) + dx**2 )
 
+    term1 = term11 / term12**(0.5)
 
-
-
-
-
+    term21 = ( dx + dz * ( np.cos(alpha)/np.sin(alpha) ) + L*np.cos(alpha) )
+    term22 = ( (L + dz* ( 1.0/np.sin(alpha) ))**2 + dx**2 + 2.0 * dx * ( L*np.cos(alpha) + dz * (np.cos(alpha)/np.sin(alpha)) ) )
+    
+    term2 = term21/term22**(0.5)
+    
+    
+    g = term0 * ( term1 - term2)
+    
+    return g*si2mGal
 
 
 
