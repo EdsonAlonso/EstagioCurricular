@@ -130,13 +130,13 @@ def g_rod(x,z,rod,component='z'):
     dummy = 1e-4 # pay attention to this number!
     
     # Verify the division by zero during calculations (for position-vector):
-    if dx.any() == 0.0:
-        dx+= dummy
-    if dz.any() == 0.0:
-        dz+=dummy
-
+    for i in range(np.size(dx,0)):
+        if dx[i] == 0.0:
+            dx[i]+= dummy
+        if dz[i]==0.0:
+            dz[i]+=dummy
+            
     # Verify the division by zero during calculations (for alpha):
-
     if alpha in [0.0, np.pi]:
         aplha+=1e-3 # pay attention to this value
         print('WARNING: CRITICAL INCLINATION. MAY NOT TRUST IN OUTCOMES!')
@@ -151,12 +151,12 @@ def g_rod(x,z,rod,component='z'):
     term11 = ( dx + dz*(cotg(alpha)) ) 
     term12 = ( (dz**2) * ((cossec(alpha))**2) + 2.0*dx*dz *cotg(alpha) + (dx**2) )
 
-    term1 = term11 / (term12**(0.5))
+    term1 = term11 / (term12)**(0.5)
 
     term21 = ( dx + dz*cotg(alpha) + L*np.cos(alpha) )
-    term22 = ( (( L + dz*cossec(alpha) )**2) + (dx**2) + 2.0*dx*( L*np.cos(alpha) + dz*cotg(alpha) ) )
+    term22 = ( ( ( L + dz*cossec(alpha) )**2) + (dx**2) + 2.0*dx*( L*np.cos(alpha) + dz*cotg(alpha) ) )
     
-    term2 = term21/ (term22**(0.5))
+    term2 = term21/ (term22)**(0.5)
     
     
     g = term0 * ( term1 - term2 )
