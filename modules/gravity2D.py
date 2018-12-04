@@ -7,6 +7,7 @@
 
 # -------- Import Python internal libraries ---------
 import numpy as np
+from modules.auxiliar import cotg,sec,cossec
 
 def g_sphere(x, z, sphere, component='z'):
     '''    
@@ -113,7 +114,7 @@ def g_rod(x,z,rod,component='z'):
     # Definition for some constants
     G = 6.673e-11 # SI
     si2mGal = 100000.0 # convert to mGal
-    degree2rad = 180.0/np.pi # convert from degrees to radians
+    degree2rad = np.pi/180.0 # convert from degrees to radians
 
     # get variables from list rod:
     x_rod = rod[0]
@@ -124,9 +125,9 @@ def g_rod(x,z,rod,component='z'):
     A     = rod[5]
     
     # Setting position-vector: 
-    dx = x - x_rod
-    dz = z - z_rod
-    dummy = 1e-8 # pay attention to this number!
+    dx = abs(x - x_rod)
+    dz = abs(z - z_rod)
+    dummy = 1e-4 # pay attention to this number!
     
     # Verify the division by zero during calculations (for position-vector):
     if dx.any() == 0.0:
@@ -145,30 +146,75 @@ def g_rod(x,z,rod,component='z'):
     
     # calculation of gravitation by parts:
     # first part of equation:
-    term0 = G*rho*A / ( dx*np.sin(alpha) )
+    term0 = ( G*rho*A / ( dx*np.sin(alpha) ) )
     
-    term11 = ( dx + dz* (np.cos(alpha)/np.sin(alpha)) ) 
-    term12 = ( dz**2 * (1.0/np.sin(alpha))**2 + 2.0*dx*dz *(np.cos(alpha)/np.sin(alpha)) + dx**2 )
+    term11 = ( dx + dz*(cotg(alpha)) ) 
+    term12 = ( (dz**2) * ((cossec(alpha))**2) + 2.0*dx*dz *cotg(alpha) + (dx**2) )
 
-    term1 = term11 / term12**(0.5)
+    term1 = term11 / (term12**(0.5))
 
-    term21 = ( dx + dz * ( np.cos(alpha)/np.sin(alpha) ) + L*np.cos(alpha) )
-    term22 = ( (L + dz* ( 1.0/np.sin(alpha) ))**2 + dx**2 + 2.0 * dx * ( L*np.cos(alpha) + dz * (np.cos(alpha)/np.sin(alpha)) ) )
+    term21 = ( dx + dz*cotg(alpha) + L*np.cos(alpha) )
+    term22 = ( (( L + dz*cossec(alpha) )**2) + (dx**2) + 2.0*dx*( L*np.cos(alpha) + dz*cotg(alpha) ) )
     
-    term2 = term21/term22**(0.5)
+    term2 = term21/ (term22**(0.5))
     
     
-    g = term0 * ( term1 - term2)
+    g = term0 * ( term1 - term2 )
     
     return g*si2mGal
 
 
+###################################################################################
 
+def g_prism(x,z,prism):
+    
+    '''
+    This function calculates the vertical component of gravity attraction produced by a prism 
+    
+    (Telford, 1981)
+    Inputs: x,z = arrays with cartesian coordinates in meters;
+    rod: list with the following elements in this specific order: prism[x_prism, h1_prism, L, A, rho ]:
+    x_prism      = horizontal distance from origin (meters)
+    h1_prism      = vertical distance from origin to top (meters)
+    L         = length of the thin prism (meters) (never zero!)
+    rho       = density of the prism (kg/m3)
+    A         = cross section of the prism (m2)
+    component = the gravitational component to be computed (only z component is available yet) 
+    
+    Output:
+    g - numpy array - the required component for the gravity in mGal. Size of gz is the same as x and z observations    
+    '''
 
+    #saving the inputs of prism:
+    x_prism  = prism[0]
+    h1_prism = prism[1]
+    L_prism  = prism[2]
+    h2_prism  = abs(L_prism - h1_prism)
+    A        = prism[3]
+    rho      = prism[4]
+    
+    #seting the variables to make the calclation?
+    dx = abs(x - x_prism)
+    dy = np.zeros(len(x))
+    h1 = abs(z - h1_prism)
+    h2 = abs(z - h2_prism)
+    
+    #setting some constans:
+    G = 6.673e-11
+    si2mGal = 100000.0
+    
+    #making the comptation of g
+    term0 = (G*rho*A)
+    
+    term11 = ( dx**2 + dy**2 + h1**2)
+    term1 = 1/(term11**(0.5))
+    
+    term21 = ( dx**2 + dy**2 + h2**2)
+    term2 = 1/(term21**(0.5))
 
-
-
-
+    g = term0 * (term1 - term2)
+    
+    return g*si2mGal
 
 
 
