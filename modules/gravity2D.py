@@ -9,7 +9,7 @@
 import numpy as np
 from modules.auxiliar import cotg,sec,cossec
 
-def g_sphere(x, z, sphere, component='z'):
+def g_sphere(x, z, sphere1, component='z'):
     '''    
     This function calculates all components of gravity attraction produced by a solid point mass and returns the one associated to the required one.
     This is a Python implementation for the subroutine presented in Blakely (1995). On this function, there are received the value of the initial
@@ -19,7 +19,7 @@ def g_sphere(x, z, sphere, component='z'):
     x - numpy array - observations in x directions (meters)
     y - numpy array - observations in y directions (meters)
     component - string - the required component to be calculated
-    sphere - list - elements of the sphere: [x_center(meters), z_center(meters), mass(kg)]
+    sphere1 - list - elements of the sphere: [x_center(meters), z_center(meters), mass(kg)]
     
     Output:
     g - numpy array - the required component for the gravity in mGal. Size of gz is the same as x and z observations    
@@ -33,6 +33,13 @@ def g_sphere(x, z, sphere, component='z'):
     G = 6.673e-11 # SI
     si2mGal = 100000.0
     
+    
+    # building a "transposed" list for correct usage of enumerate loop:
+ 
+    sphere=[]
+    for i in range( len(sphere1[0]) ): # sphere1[0] contains of all masses considered.
+        sphere.append([ sphere1[0][i], sphere1[1][i], sphere1[2][i] ])
+
     # Setting the initial value for gravity:
     g = 0.
     gg = 0.0
