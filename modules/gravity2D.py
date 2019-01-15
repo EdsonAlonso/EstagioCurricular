@@ -224,6 +224,108 @@ def g_prism(x,z,prism):
     return g*si2mGal
 
 
+########################################################################################################################
 
+def g_finit_sheet(x,z,sheet):
+    '''
+    This function calculates the vertical gravitational attraction gz of a dipping thin sheet with an inclination (alpha) equal (90+dipping angle) with horizontal plan and has 
+    finite length (l) and thickness (T)
+    
+    Inputs: x,z = arrays with cartesian coordinates in meters;
+    sheet: list with the following elements in this specific order: rod[x_sheet, z_sheet, rho, alpha, l, T ]:
+    x_sheet      = horizontal distance from origin (meters)
+    z_sheet      = vertical distance from origin (meters)
+    rho       = density of the sheet (kg/m3)
+    alpha     = inclination of the sheet (degrees)
+    l         = length of the thin sheet (meters)
+    T         = thickness of the sheet (meters)
+    
+    Output:
+    g - numpy array - the required component for the gravity in mGal. Size of gz is the same as x and z observations    
+    '''
 
+    # Stablishing some conditions
+    if x.shape != z.shape:
+        raise ValueError("All inputs must have same shape!")
+        
+    # Definition for some constants
+    G = 6.673e-11 # SI
+    si2mGal = 100000.0 # convert to mGal
+    degree2rad = np.pi/180.0 # convert from degrees to radians
+    rad2degree = 180.0/np.pi
+    # get variables from list rod:
+    x_sheet = sheet[0]
+    z_sheet = sheet[1]
+    rho     = sheet[2]
+    alpha = sheet[3]#*degree2rad # set alpha to radians in here
+    l   = sheet[4]
+    T     = sheet[5]
+    
+    # Setting position-vector: 
+    dx = x - x_sheet
+    dz = z - z_sheet
+    
+    # set the size of output array:
+    g = np.zeros( np.size(x) )
+    
+    # calculation of gravitation by parts:
+    # first part of equation:
+    r1 = (dx**2 + dz**2 )**(1/2)
+    r2 = ( ( dx + l*np.cos(alpha) )**2 + ( dz +l*np.sin(alpha) )**2 )**(1/2)
+    theta12 =  np.arccos( (r1**2 + r2**2 - l**2) / (2*r1*r2) ) 
+    
+    term1 = (2*G*rho*T)
+    term2 = abs( ( np.sin(alpha)*np.log(r2/r1) - theta12*np.cos(alpha) ) )
+    g = term1*term2
+    
+    return g*si2mGal
+
+########################################################################################################################
+
+def g_semifin_sheet(x,z,sheet):
+    '''
+    This function calculates the vertical gravitational attraction gz of a horizontal semi-infinite thin sheet with thickness (T)
+    
+    Inputs: x,z = arrays with cartesian coordinates in meters;
+    sheet: list with the following elements in this specific order: rod[x_sheet, z_sheet, rho, T ]:
+    x_sheet      = horizontal distance from origin (meters)
+    z_sheet      = vertical distance from origin (meters)
+    rho       = density of the sheet (kg/m3)
+    T         = thickness of the sheet (meters)
+    
+    Output:
+    g - numpy array - the required component for the gravity in mGal. Size of gz is the same as x and z observations    
+    '''
+
+    # Stablishing some conditions
+    if x.shape != z.shape:
+        raise ValueError("All inputs must have same shape!")
+        
+    # Definition for some constants
+    G = 6.673e-11 # SI
+    si2mGal = 100000.0 # convert to mGal
+    degree2rad = np.pi/180.0 # convert from degrees to radians
+    rad2degree = 180.0/np.pi
+    # get variables from list rod:
+    x_sheet = sheet[0]
+    z_sheet = sheet[1]
+    rho     = sheet[2]
+    T     = sheet[3]
+    
+    # Setting position-vector: 
+    dx = x - x_sheet
+    dz = z - z_sheet
+    
+    # set the size of output array:
+    g = np.zeros( np.size(x) )
+    
+    # calculation of gravitation by parts:
+    # first part of equation:
+    
+    term1 = (2*G*rho*T)
+    term2 =( (np.pi/2) - np.arctan(dx/dz) )
+    
+    g = term1*term2
+    
+    return g*si2mGal
 
