@@ -257,13 +257,13 @@ def g_finit_sheet(x,z,sheet):
     x_sheet = sheet[0]
     z_sheet = sheet[1]
     rho     = sheet[2]
-    alpha = sheet[3]#*degree2rad # set alpha to radians in here
+    alpha = (np.pi/2.0) + sheet[3]*degree2rad # set alpha to radians in here
     l   = sheet[4]
     T     = sheet[5]
     
     # Setting position-vector: 
-    dx = x - x_sheet
-    dz = z - z_sheet
+    dx = (x - x_sheet) #+ 10e-3 # dummy to avoid nans
+    dz = (z - z_sheet) #+ 10e-3
     
     # set the size of output array:
     g = np.zeros( np.size(x) )
@@ -273,9 +273,9 @@ def g_finit_sheet(x,z,sheet):
     r1 = (dx**2 + dz**2 )**(1/2)
     r2 = ( ( dx + l*np.cos(alpha) )**2 + ( dz +l*np.sin(alpha) )**2 )**(1/2)
     theta12 =  np.arccos( (r1**2 + r2**2 - l**2) / (2*r1*r2) ) 
-    
+    print( (r1**2 + r2**2 - l**2) / (2.0 * r1 * r2) )
     term1 = (2*G*rho*T)
-    term2 = abs( ( np.sin(alpha)*np.log(r2/r1) - theta12*np.cos(alpha) ) )
+    term2 = ( np.sin(alpha)*np.log(r2/r1) - theta12*np.cos(alpha) ) 
     g = term1*term2
     
     return g*si2mGal
