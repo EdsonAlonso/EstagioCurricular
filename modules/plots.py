@@ -120,3 +120,84 @@ def draw_prism(ax,dike):
     #plt.tight_layout(True)
     return ax
    
+######################################################################################################
+def draw_finite_sheet(sheet,draw = True):
+    '''This function recieves a list 'sheet' = [x_ini, z_ini, dens, dip, length, thickness] representating a rectangle and returns the coordinates of its vertices
+    
+    Inputs - 
+    sheet -> list like [x_ini, z_ini, dens, dip, length, thickness]
+
+    Outputs - 
+    
+    xs -> list meaning the x coordinates of the rectangle vertices
+    ys -> list meaning the y coordinates of the rectangle vertices
+    '''
+    
+    xo, zo   = sheet[0], sheet[1]
+    d, alpha = sheet[4], (np.pi/2) + np.pi*sheet[3]/180 
+    beta     = np.pi - alpha
+    t = sheet[5]
+    # coordendas finais da thin sheet:
+    x1 = xo + d * np.cos(beta)
+    z1 = zo + d * np.sin(beta)
+
+    gamma = (np.pi/2.0) - beta
+    # coordenadas com a thickness da sheet:
+    x3 = xo + t * np.cos(gamma)
+    z3 = zo - t * np.sin(gamma)
+
+    x2 = x3 + d * np.cos(beta)
+    z2 = z3 + d * np.sin(beta) # z positivo para baixo!
+
+    xs = [xo, x1, x2, x3, xo]
+    zs = [zo, z1, z2, z3, zo]
+    
+    if draw == True:
+        plt.figure(figsize = (10,10),facecolor = 'w')
+        plt.plot(xs,zs,'r')
+        plt.xlim(xo-2 , x1 + 2)
+        plt.ylim(0 , z1 + 2)
+        plt.grid()
+        plt.gca().invert_yaxis()
+        plt.show()
+    return xs,zs
+
+######################################################################################################
+def draw_infinite_sheet(sheet,xmax,draw = True):
+    '''This function recieves a list 'sheet' = [x_ini, z_ini, dens, thickness] representating a infinite rectangle and returns the coordinates of its vertices and the
+    xmax meanig the maximum value for the x coordinate observation
+    
+    Inputs - 
+    sheet -> list like [x_ini, z_ini, dens, thickness]
+    xmax -> float 
+    
+    Outputs - 
+    xs -> list meaning the x coordinates of the infinite rectangle vertices
+    ys -> list meaning the y coordinates of the infinite rectangle vertices
+    '''
+    
+    xo, zo   = sheet[0], sheet[1]
+    t = sheet[3]
+    # coordendas finais da thin sheet:
+    x1 = xmax 
+    z1 = zo
+    
+    # coordenadas com a thickness da sheet:
+    x2 = x1
+    z2 = zo - t
+
+    x3 = xo
+    z3 = zo - t # z positivo para baixo!
+
+    xs = [xo, x1, x2, x3, xo]
+    zs = [zo, z1, z2, z3, zo]
+    
+    if draw == True:
+        plt.figure(figsize = (10,10),facecolor = 'w')
+        plt.plot(xs,zs,'r')
+        plt.xlim(xo-2 , xmax)
+        plt.ylim(0 , z1 + 2)
+        plt.grid()
+        plt.gca().invert_yaxis()
+        plt.show()
+    return xs,zs
