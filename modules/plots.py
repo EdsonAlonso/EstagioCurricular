@@ -1,6 +1,6 @@
 # --------------------------------------------------------------------------------------------------
 # Title: Grav-Mag Codes
-# Author: Rodrigo Bijani and Victor Carreira
+# Author: Rodrigo Bijani and Edson Fallaluza
 # Description: Source codes for plotting images.
 # --------------------------------------------------------------------------------------------------
 
@@ -13,7 +13,7 @@ import pylab as py
 from itertools import product, combinations
 
 ######################################################################################################
-def rectangle(ax, area, style='-k', linewidth=1, fill=None, alpha=1., label=None):
+def draw_rectangle(prism, style='-k', linewidth=1, fill=None, alpha=1., label=None):
     """
     Plot a rectangle in a ax plotbox.
 
@@ -45,18 +45,30 @@ def rectangle(ax, area, style='-k', linewidth=1, fill=None, alpha=1., label=None
         The axes element of the plot
 
     """
-    x1, x2, y1, y2 = area
+    xo, zo   = prism[0], prism[1]
+    L = prism[2]
+    A = prism[4]
+    t = np.sqrt(A)
+    # coordenadas finais do prism:
+    x1 = xo + t # consideracao: tampa do prisma quadrada! (A = t**2) 
+    z1 = zo 
+    
+    # coordenadas com a thickness da sheet:
+    x2 = x1
+    z2 = zo + L
+
+    x3 = xo 
+    z3 = zo + L # z positivo para baixo!
+
+    xs = [xo, x1, x2, x3, xo]
+    zs = [zo, z1, z2, z3, zo]    
+    
+    # x1, x2, y1, y2 = area
    # if xy2ne:
    #     x1, x2, y1, y2 = y1, y2, x1, x2
-    xs = [x1, x1, x2, x2, x1]
-    ys = [y1, y2, y2, y1, y1]
-    kwargs = {'linewidth': linewidth}
-    if label is not None:
-        kwargs['label'] = label
-    plot, = ax.plot(xs, ys, style, **kwargs)
-    if fill is not None:
-        ax.fill(xs, ys, color=fill, alpha=alpha)
-    return ax
+   # xs = [x1, x1, x2, x2, x1]
+   # ys = [y1, y2, y2, y1, y1]
+    return xs,zs
 
 
 def draw_prism(ax,dike):
@@ -155,6 +167,7 @@ def draw_finite_sheet(sheet,draw = True):
     if draw == True:
         plt.figure(figsize = (10,10),facecolor = 'w')
         plt.plot(xs,zs,'r')
+        plt.fill(xs,zs, color='r', alpha=0.4)
         plt.xlim(xo-2 , x1 + 2)
         plt.ylim(0 , z1 + 2)
         plt.grid()
@@ -195,6 +208,7 @@ def draw_infinite_sheet(sheet,xmax,draw = True):
     if draw == True:
         plt.figure(figsize = (10,10),facecolor = 'w')
         plt.plot(xs,zs,'r')
+        plt.fill(xs,zs, color='r', alpha=0.4)
         plt.xlim(xo-2 , xmax)
         plt.ylim(0 , z1 + 2)
         plt.grid()
